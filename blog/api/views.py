@@ -1,14 +1,18 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
+from rest_framework.filters import SearchFilter, OrderingFilter
 
-from django.contrib.auth.models import User
-
-from django_project.blog.api.serializers import PostSerializer
-from django_project.blog.models import Post
+from blog.api.serializers import PostSerializer
+from blog.models import Post
 
 
 @api_view(['GET', ])
+@permission_classes((IsAuthenticated, ))
 def api_detail_post_view(request, pk):
     try:
         post = Post.objects.get(pk=pk)
@@ -20,11 +24,16 @@ def api_detail_post_view(request, pk):
 
 
 @api_view(['PUT', ])
+@permission_classes((IsAuthenticated, ))
 def api_update_post_view(request, pk):
     try:
         post = Post.objects.get(pk=pk)
     except Post.PostNotFount:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    if post.author != user:
+        return Response({'response' : 'You dont have permission to edit that'})
 
     serializer = PostSerializer(post, request.data)
     data = {}
@@ -36,11 +45,16 @@ def api_update_post_view(request, pk):
 
 
 @api_view(['DELETE', ])
+@permission_classes((IsAuthenticated, ))
 def api_delete_post_view(request, pk):
     try:
         post = Post.objects.get(pk=pk)
     except Post.PostNotFount:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    if post.author != user:
+        return Response({'response' : 'You dont have permission to delete that'})
 
     serializer = PostSerializer(post, request.data)
     operation = post.delete()
@@ -53,9 +67,9 @@ def api_delete_post_view(request, pk):
 
 
 @api_view(['POST', ])
+@permission_classes((IsAuthenticated, ))
 def api_create_post_view(request):
-    user = User.objects.get(pk=1)
-
+    user = request.user
     post = Post(author=user)
     serializer = PostSerializer(post, data=request.data)
 
@@ -65,4 +79,12 @@ def api_create_post_view(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ApiPostListView(ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ['title', 'content', 'author__username']
 
