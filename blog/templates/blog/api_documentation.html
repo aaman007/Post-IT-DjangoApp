@@ -1,0 +1,68 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1> Posts API </h1> <br>
+    <ul>
+        <li>
+            Getting Post Lists <br>
+            <code>
+                http://localhost:8000/api/post/list
+            </code>
+        </li><br>
+        <li>
+            Creating New Post <br>
+            <code>
+                http://localhost:8000/api/post/new
+            </code>
+        </li><br>
+        <li>
+            Getting Specific Post Detail <br>
+            <code>
+                http://localhost:8000/api/post/post_id
+            </code>
+        </li><br>
+        <li>
+            Updating A Post [ title and content field must be provided ] <br>
+            <code>
+                http://localhost:8000/api/post/post_id/update
+            </code>
+        </li><br>
+        <li>
+            Deleting A Post <br>
+            <code>
+                http://localhost:8000/api/post/post_id/update
+            </code>
+        </li><br>
+    </ul>
+
+    <br><br>
+
+    <h1> Accounts API </h1> <br>
+    <ul>
+        <li>
+            Register [ username, email, password, password2 must be provided ] <br>
+            <code>
+                http://localhost:8000/api/account/register
+            </code>
+        </li><br>
+        <li>
+            Log In [ username,password must be provided ] <br>
+            <code>
+                http://localhost:8000/api/account/login
+            </code>
+        </li><br>
+        <li>
+            Account Properties <br>
+            <code>
+                http://localhost:8000/api/account/properties
+            </code>
+        </li><br>
+        <li>
+            Update Account Properties [ username , email must be provided ] <br>
+            <code>
+                http://localhost:8000/api/account/properties/update
+            </code>
+        </li><br>
+    </ul>
+    <br><br><br>
+{% endblock %}
