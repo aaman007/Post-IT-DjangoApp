@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from blog.api.serializers import PostSerializer
+from blog.api.serializers import PostSerializer , PostUpdateSerializer
 from blog.models import Post
 
 
@@ -35,7 +35,7 @@ def api_update_post_view(request, pk):
     if post.author != user:
         return Response({'response' : 'You dont have permission to edit that'})
 
-    serializer = PostSerializer(post, request.data)
+    serializer = PostUpdateSerializer(post, data=request.data)
     data = {}
     if serializer.is_valid():
         serializer.save()

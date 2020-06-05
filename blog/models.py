@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=100)
-    content = models.TextField()
+    title = models.CharField(max_length=100, null=False, blank=True)
+    content = models.TextField(null=False, blank=False)
     date_published = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
