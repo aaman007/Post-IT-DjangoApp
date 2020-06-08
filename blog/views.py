@@ -1,15 +1,22 @@
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from .models import Post
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.detail import SingleObjectMixin
+from django.views import View
 from django.views.generic import (
     ListView,
     DetailView,
     CreateView,
     UpdateView,
     DeleteView,
+    FormView,
 )
+from .forms import CommentForm
+from .models import Comment
+from django.shortcuts import redirect
+from django.http import HttpResponseForbidden
 
 
 # def home(request):
@@ -40,8 +47,38 @@ class UserPostListView(ListView):
         return Post.objects.filter(author=user).order_by('-date_published')
 
 
-class PostDetailView(DetailView):
+class PostDisplayView(DetailView):
     model = Post
+
+    def get_context_data(self, **kwargs):
+        context = super(PostDisplayView, self).get_context_data(**kwargs)
+        context['form'] = CommentForm()
+        context['comments'] = Comment.objects.filter(post=self.object).order_by('-created_date')
+        return context
+
+
+class PostCommentView(CreateView):
+    fields = ['content']
+    model = Comment
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post = Post.objects.filter(pk=self.kwargs.get('pk')).first()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('post-detail', kwargs={'pk': self.object.post.pk})
+
+
+class PostDetailView(View):
+
+    def get(self, request, *args, **kwargs):
+        view = PostDisplayView.as_view()
+        return view(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        view = PostCommentView.as_view()
+        return view(request, *args, **kwargs)
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):

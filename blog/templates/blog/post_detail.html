@@ -1,5 +1,7 @@
 {% extends "blog/base.html" %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
         <article class="media content-section">
           <div class="media-body">
@@ -13,8 +15,39 @@
                     </div>
                 {% endif %}
             </div>
+
             <h2 class="article-title" >{{ object.title }}</h2>
-            <p class="article-content">{{ object.content }}</p>
+            <p class="article-content">{{ object.content }}</p><hr>
+              <h5>Comments</h5>
+              {% if comments %}
+                    {% for comment in comments %}
+                        <article class="media content-section">
+                              <div class="media-body">
+                                <div class="article-metadata">
+                                  <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ comment.author }}</a>
+                                  <small class="text-muted">{{ comment.created_date | date:"F d, Y" }}</small>
+                                </div>
+                                <p class="article-content">{{ comment.content }}</p>
+                              </div>
+                        </article>
+                    {% endfor %}
+              {% else %}
+                    <div class="mb-4">
+                        No comments to show
+                    </div>
+              {% endif %}
+              {% if user.is_authenticated %}
+                  <form method="POST">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            <h5 class="border-bottom mb-4">Add a new comment</h5>
+                            {{ form|crispy }}
+                        </fieldset>
+                        <div class="form-group">
+                            <button class="btn btn-outline-info" type="submit">Comment</button>
+                        </div>
+                    </form>
+              {% endif %}
           </div>
         </article>
 {% endblock %}
