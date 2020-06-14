@@ -44,6 +44,7 @@ urlpatterns = [
     ## REST API Urls
     path('api/post/', include('blog.api.urls')),
     path('api/account/', include('accounts.api.urls')),
+    path('randapi/', include('blog.randapi.urls')),
 ]
 
 if settings.DEBUG:
